@@ -57,7 +57,25 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+    probability_distribution = {}
+
+    corpus_length = len(corpus.keys())
+    pages_length = len(corpus[page])
+
+    random_factor = (1 - damping_factor) / corpus_length
+    even_factor = damping_factor / pages_length
+
+    for key in corpus.keys():
+        if pages_length == 0:
+            probability_distribution[key] = 1 / corpus_length
+
+        else:
+            if key not in corpus[page]:
+                probability_distribution[key] = random_factor
+            else:
+                probability_distribution[key] = even_factor + random_factor
+
+    return probability_distribution
 
 
 def sample_pagerank(corpus, damping_factor, n):
@@ -69,7 +87,31 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Initialize a dictionary with all pages as keys and values as 0 so all have 0 probability
+    samples = {key: 0 for key in corpus.keys()}
+
+    # Randomly select a page to start with
+    key = random.choice(list(corpus.keys()))
+
+    # Iterate over the n samples
+    for _ in range(n):
+        probabilty_distribution = transition_model(corpus, key, damping_factor) 
+        prob_dist_list = list(probabilty_distribution.keys()) 
+        weights = [probabilty_distribution[i] for i in probabilty_distribution] 
+        key = random.choices(prob_dist_list, weights, k=1)[0] 
+        samples[key] += 1
+
+    return normalize(samples, n)
+
+
+def normalize(dict, n):
+    """
+    Return a dictionary where the values are normalized to sum to 1.
+    """
+    for item in dict:
+        dict[item] /= n
+
+    return dict
 
 
 def iterate_pagerank(corpus, damping_factor):
@@ -81,7 +123,40 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Constants
+    THRESHOLD = 0.001
+    N = len(corpus)
+
+    ranks = {}
+    
+    for key in corpus:
+        ranks[key] = 1 / N
+
+
+    while True:
+        count = 0
+
+        for key in corpus:
+            add = 0
+            new_probability = (1 - damping_factor) / N
+
+            for page in corpus:
+                if key in corpus[page]:
+                    links = len(corpus[page])
+                    add += ranks[page] / links
+
+            new_probability += damping_factor * add
+
+            # Within 0.001 ( < )
+            if abs(ranks[key] - new_probability) < THRESHOLD:
+                count += 1
+
+            ranks[key] = new_probability 
+
+        if count == N:
+            break
+
+    return ranks
 
 
 if __name__ == "__main__":
