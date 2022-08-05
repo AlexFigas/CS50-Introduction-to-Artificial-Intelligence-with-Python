@@ -101,6 +101,7 @@ def sample_pagerank(corpus, damping_factor, n):
         key = random.choices(prob_dist_list, weights, k=1)[0] 
         samples[key] += 1
 
+    # Return the normalized samples
     return normalize(samples, n)
 
 
@@ -129,13 +130,15 @@ def iterate_pagerank(corpus, damping_factor):
 
     ranks = {}
     
+    # Initialize the ranks with 1/N for each page
     for key in corpus:
         ranks[key] = 1 / N
 
-
+    # Iterate until convergence
     while True:
         count = 0
 
+        # Calculate the new ranks
         for key in corpus:
             add = 0
             new_probability = (1 - damping_factor) / N
@@ -153,9 +156,11 @@ def iterate_pagerank(corpus, damping_factor):
 
             ranks[key] = new_probability 
 
+        # If the new ranks are the same as the old ranks, then we have converged
         if count == N:
             break
 
+    # Return the normalized ranks
     return ranks
 
 
