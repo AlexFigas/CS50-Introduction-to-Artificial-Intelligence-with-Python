@@ -147,7 +147,8 @@ class CrosswordCreator():
         """
         # If no arcs, use all arcs
         if not arcs:
-            arcs = [(x, y) for x in self.domains for y in self.domains if x != y]
+            arcs = [(x, y)
+                    for x in self.domains for y in self.domains if x != y]
 
         # Repeat until no more arcs to ensure arc consistency
         while arcs:
@@ -209,7 +210,7 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        values = []      
+        values = []
         for value in self.domains[var]:
             count = 0
             for neighbor in self.crossword.neighbors(var):
@@ -235,7 +236,9 @@ class CrosswordCreator():
         # Find unassigned variables
         unassigned = [var for var in self.domains if var not in assignment]
         # Sort by number of remaining values in domain
-        unassigned.sort(key=lambda var: (len(self.domains[var]), -len(self.crossword.neighbors(var))))
+        unassigned.sort(key=lambda var: (
+            len(self.domains[var]), -len(self.crossword.neighbors(var)))
+        )
         # Return first variable
         return unassigned[0]
 
@@ -268,6 +271,7 @@ class CrosswordCreator():
             del assignment[var]
 
         return None
+
 
 def main():
 
